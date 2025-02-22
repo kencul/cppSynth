@@ -21,11 +21,6 @@ struct Osc{
     }
 };
 
-// double osc(double amp, double freq, double &phase, double sr){
-//     double sample = amp * sin(phase);
-//     phase += twopi * freq/sr;
-//     return sample;
-// }
 
 int main (int argc, char *argv[]){
     // portaudio init
@@ -62,7 +57,7 @@ int main (int argc, char *argv[]){
     while(frames < SR * length){
         // Create buffer
         for(int i = 0; i < bufferSize; i++){
-            outputBuffer[i] = osc1.process(0.2, 440) + osc2.process(0.2, 440 * 3/2);
+            outputBuffer[i] = osc1.process(0.2, 440/2) + osc2.process(0.2, 440 * 3/2);
             frames++;
         }
         // Ensures extra frames past length isn't written
@@ -71,21 +66,6 @@ int main (int argc, char *argv[]){
         } else {
             sf_write_double(fileOut, outputBuffer, bufferSize);
         }
-    }
-
-    while(frames < SR * length){
-        // Create buffer
-        for(int i = 0; i < bufferSize; i++){
-            outputBuffer[i] = osc1.process(0.2, 440/2) + osc2.process(0.2, 220 * 3/2);
-            frames++;
-        }
-        // Ensures extra frames past length isn't written
-        if(frames > SR * length){
-            sf_write_double(fileOut, outputBuffer, frames - (SR*length));
-        } else {
-            sf_write_double(fileOut, outputBuffer, bufferSize);
-        }
-        
     }
 
     sf_close(fileOut);
