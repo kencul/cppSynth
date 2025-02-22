@@ -34,7 +34,7 @@ int main (int argc, char *argv[]){
     SNDFILE *fileOut;
     SF_INFO info_out;
 
-    info_out.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+    info_out.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
     info_out.samplerate = SR;
     info_out.channels = 1;
 
@@ -71,8 +71,8 @@ int main (int argc, char *argv[]){
         } else {
             sf_write_double(fileOut, outputBuffer, bufferSize);
         }
-        
     }
+
     while(frames < SR * length){
         // Create buffer
         for(int i = 0; i < bufferSize; i++){
