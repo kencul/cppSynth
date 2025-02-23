@@ -48,3 +48,26 @@ Added better logic to write exact amounts of samples to fill 3 seconds
 
 Keeps phase member in Osc object clamped within 0 and 2π
 
+### osc3
+
+A variation of osc 2 which only handles one voice, but allows the voice to change frequency
+
+Usage:
+
+```./bin/osc3 freq1 dur1 [freq2 dur2 ...]```
+
+Example usage:
+
+```./bin/osc3 440 0.5 550 0.5 660 0.5 770 0.5 880 0.5 990 0.5 1100 0.5```
+
+Use of ```std::pair``` for parameter parsing, acting like a tuple in python, storing frequency and duration as a pair.
+
+Sample generation only fills buffer with nessassary samples, so the phases don't get messed up between partial fills of the buffer
+
+Addition of ```sampleGeneration``` helper function in ```Osc``` struct to avoid unnessassary member variable assignments for ```process``` function overloads.
+
+Changed macros to ```constexpr``` for better optimization by compiler (Not applicable to std::string)
+
+Encapsulated code for parsing parameters and generating and writing audio into functions.
+
+Encapsulated code for initializing sound file and writing to sound file into a class.
