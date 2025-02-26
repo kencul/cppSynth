@@ -1,7 +1,7 @@
 # C++ Oscillator
-## Ken Kobayashi - 2/18/2025
+### Ken Kobayashi - 2/18/2025
 
-### Building
+## Building
 Uses a CMake file pointing to libsndfile installed in homebrew directory.  
 This CMake file **only** works when libsndfile is installed threw brew in MacOS on M1 Macs.
 
@@ -28,13 +28,17 @@ Run executable inside of the ```/builds/bin``` directory:
 ```
 Play output wav file "output.wav" in same directory where command was run.
 
-### osc1
+## osc1
 
 Simple sine wave oscillator which outputs a 3 second output.wav file.  
 Uses a ```struct``` to store object variables such as phase position to consolidate information about each oscillator voice within itself.  
 Frequencies and voices are hardcoded. Must be changed within code.
 
-### osc2
+### Usage:
+
+```./bin/osc1```
+
+## osc2
 
 Improvement on osc1 through changing oscillator voice frequencies through program arguements.
 
@@ -48,17 +52,23 @@ Added better logic to write exact amounts of samples to fill 3 seconds
 
 Keeps phase member in Osc object clamped within 0 and 2π
 
-### osc3
+### Usage:
+
+```./bin/osc2```
+
+## osc3
 
 A variation of osc 2 which only handles one voice, but allows the voice to change frequency
 
-Usage:
+### Usage:
 
 ```./bin/osc3 freq1 dur1 [freq2 dur2 ...]```
 
 Example usage:
 
 ```./bin/osc3 440 0.5 550 0.5 660 0.5 770 0.5 880 0.5 990 0.5 1100 0.5```
+
+### Changes
 
 Use of ```std::pair``` for parameter parsing, acting like a tuple in python, storing frequency and duration as a pair.
 
@@ -71,3 +81,21 @@ Changed macros to ```constexpr``` for better optimization by compiler (Not appli
 Encapsulated code for parsing parameters and generating and writing audio into functions.
 
 Encapsulated code for initializing sound file and writing to sound file into a class.
+
+## osc4
+
+Migrating the ```AudioFile``` class into a header file  
+Changed ```Osc``` struct into a class, and migrated to a header
+
+Changed the Cmake file to compile a library.  
+This method compiles all header files in the ```Headers``` directory into a library.  
+The library is then linked to each source file in ```Oscillators``` directory when compiling.  
+This ensures the header files are compiled only once, not once per each osc file.
+
+### Usage:
+
+```./bin/osc4 freq1 dur1 [freq2 dur2 ...]```
+
+Example usage:
+
+```./bin/osc4 440 0.5 550 0.5 660 0.5 770 0.5 880 0.5 990 0.5 1100 0.5```

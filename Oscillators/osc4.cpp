@@ -1,110 +1,15 @@
 #include <iostream>
-#include <cstdio>
-#include <cmath>
 #include <string> // for std::stoi
 #include <vector> // for std::vector, allowing use of range based for loops
 #include <array> // for std::array, for use as buffer
 
 #include <chrono> // for std::chrono::high_resolution_clock::now() to calculate run time
 
-#include <sndfile.h>
+// Custom header files
+#include "audioFile.hpp"
+#include "libdef.hpp"
+#include "osc.hpp"
 
-
-// g++ osc.cpp -o out -L/opt/homebrew/lib -I/opt/homebrew/include -lsndfile
-
-// Global variables
-#define OUTPUTFILENAME "output3.wav";
-
-constexpr int sampleRate = 44100;
-constexpr double volume = 0.2;
-constexpr int bufferSize = 512;
-constexpr double pi = 3.14159265358979323846;
-constexpr double twopi = 2.0 * pi;
-
-/// @brief Sine wave oscillator which stores phase, allowing for frequency changes without clicks
-struct Osc{
-    double phase;
-    int samplerate;
-    int freq;
-    double amp;
-    // Constructor with init values for phase and SR
-    // freq is an optional parameter for the contructor, due to it having a default value
-    Osc(double amp = 1, int freq = 440) : phase(0.), samplerate(44100), freq(freq), amp(amp) {};
-
-    /// @brief Assigns parameters to amp and freq member variables, and generates the next sample
-    /// @param ampInput amplitude value to set oscillator to (0-1), -1 for no change
-    /// @param freqInput frequency value to set oscillator to (positive integer), -1 for no change
-    /// @return generated sample value
-    double process(int freqInput = -1, double ampInput = -1){
-        // update member variables IF default values are overriden
-        if (ampInput > 0) 
-            amp = ampInput;
-        if (freqInput > 0) 
-            freq = freqInput;
-        return generateSample();
-    }
-
-    // private helper function
-    // not accessible outside of the struct
-    // to make process overload not have to reassign unneccessary values to member variables
-    private:
-        /// @brief Generates the next sample in the oscillator
-        /// @return generated sample value
-        double generateSample(){
-            // process audio
-            double sample = amp * sin(phase);
-            phase += twopi * freq/samplerate;
-
-            // wrap phase under 2π
-            if (phase >= twopi)
-                phase -= twopi;
-            return sample;
-        }
-};
-
-/// @brief Handles opening a sound file, writing to sound file, and closing sound file
-class AudioFile{
-public:
-    /// @brief initializes the soundfile
-    /// @param fileName name of output file
-    /// @param sr sample rate of output file
-    /// @param channels number of channels of output file
-    AudioFile(const std::string& fileName, int sr, int channels){
-        info_out.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-        info_out.samplerate = sr;
-        info_out.channels = channels;
-
-        // Check if output file already exists
-        FILE *testOutputFile = fopen(fileName.c_str(), "r");
-        // If output file already exists, delete the file. 
-        if (testOutputFile){
-            remove(fileName.c_str());
-        }
-
-        fileOut = sf_open(fileName.c_str(), SFM_WRITE, &info_out);
-        if(!fileOut){
-            throw std::runtime_error("Failed to open soundfile!");
-        }
-    }
-
-    /// @brief Closes sf reader automatically when class object goes out of scope
-    ~AudioFile(){
-        if (fileOut){
-            sf_close(fileOut);
-        }
-    }
-
-    /// @brief writes samples in buffer to sound file
-    /// @param buffer array of doubles of sample values
-    /// @param samples number of samples to write from buffer
-    void write(const double* buffer, int samples){
-        sf_write_double(fileOut, buffer, samples);
-    }
-
-    private:
-        SNDFILE *fileOut;
-        SF_INFO info_out;
-};
 
 /// @brief Parses command line arguments, separating each frequency duration pair, and validating for valid input
 /// @param argc main function argc
@@ -182,7 +87,6 @@ int main (int argc, char *argv[]){
     }
 
     std::cout << "Total performance time: " << totalTime << " seconds" << std::endl;
-
 
     // sndfile init
     std::string outputFileName = OUTPUTFILENAME;
