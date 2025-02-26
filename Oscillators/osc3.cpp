@@ -163,7 +163,7 @@ int main (int argc, char *argv[]){
 
     // Checks number of arguments passed
     if (argc < 3 || argc % 2 != 1 /* if no freq dur pairs, or incomplete pairs*/){
-        std::cout << "Invalid number of arguments! \nUsage: ./osc2 freq1 dur1 [freq2 dur2 ...]\n";
+        std::cout << "Invalid number of arguments! \nUsage: ./osc3 freq1 dur1 [freq2 dur2 ...]\n";
         return EXIT_FAILURE;
     }
 
