@@ -11,7 +11,7 @@
 #include "osc.hpp"
 #include "audioOut.hpp"
 
-/// @brief Osc with vector of pairs added into a composite class
+/// @brief Osc with vector of pairs added into a composite class. Generates vector of freq dur pairs, and keeps track of frequencies and how long they must play.
 class OscFreqDurPair{
     public:
     // Constructor initializes Osc member object
@@ -47,17 +47,20 @@ class OscFreqDurPair{
         return freqDurPairs;
     }
     
+    /// @brief Generates the next audio sample, feeding the Osc object with the proper frequency based on how long each must play and how many samples has been generated
+    /// @return value of audio sample
     double process(){
+        // If the current frequency has played for given length, iterate to next note
         if (noteSamplesToWrite <= noteSamplesWritten){
-            noteIndex++;
-            std::pair<int,double> pair = freqDurPairs[noteIndex];
-            noteFreq = pair.first;
-            noteSamplesToWrite = static_cast<int>(pair.second * sampleRate);
-            noteSamplesWritten = 0;
-            std::cout << "Freq: " << noteFreq << "Hz" << std::endl;
+            noteIndex++; // Iterate index
+            std::pair<int,double> pair = freqDurPairs[noteIndex]; // Get next note freq and duration
+            noteFreq = pair.first; // Get frequency
+            noteSamplesToWrite = static_cast<int>(pair.second * sampleRate); // Calculate how many samples to play new frequency
+            noteSamplesWritten = 0; // Reset counter for samples note has played
+            std::cout << "Freq: " << noteFreq << "Hz" << std::endl; // Print that a new note is playing
         }
-        noteSamplesWritten++;
-        return osc.process(noteFreq);
+        noteSamplesWritten++; // Iterate number of samples note has played
+        return osc.process(noteFreq); // Make Osc object generate the next sample with current note frequency
     }
 
     double getPerformanceTime(){
