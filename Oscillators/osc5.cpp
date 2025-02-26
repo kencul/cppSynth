@@ -63,6 +63,8 @@ class OscFreqDurPair{
         return osc.process(noteFreq); // Make Osc object generate the next sample with current note frequency
     }
 
+    /// @brief Calculates how long the performance with user input frequencies and durations
+    /// @return length of performance in seconds
     double getPerformanceTime(){
         // If totalTime is already calculated, just return it
         if(totalTime != 0) return totalTime;
@@ -104,7 +106,6 @@ int myCallback(const void *inputBuffer, void *outputBuffer,
         float *out = (float*)outputBuffer;
         (void)inputBuffer; // Prevent unused variable warning.
         OscFreqDurPair *osc = (OscFreqDurPair*)userData;
-
         
         float sample = 0;
         for (unsigned int i = 0; i < framesPerBuffer; i++) {
