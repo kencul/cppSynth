@@ -42,7 +42,7 @@ Frequencies and voices are hardcoded. Must be changed within code.
 
 Improvement on osc1 through changing oscillator voice frequencies through program arguements.
 
-Uses ```std::vect``` instead of dynamically allocated arrays to allow in place constructing of Osc objects through ```emplace_back```, and range-based for loops that act like for each loops from python, simplifying the for loops.
+Uses ```std::vector``` instead of dynamically allocated arrays to allow in place constructing of Osc objects through ```emplace_back```, and range-based for loops that act like for each loops from python, simplifying the for loops.
 
 Added the ```chrono``` library to track how long the program takes to execute, which is printed on successful runs.
 

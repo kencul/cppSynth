@@ -15,7 +15,7 @@
 class OscFreqDurPair{
     public:
     // Constructor initializes Osc member object
-    OscFreqDurPair(double amp = 1, int freq = 440) : osc(amp, freq){};
+    OscFreqDurPair(int channels) : osc(channels){};
     
     /// @brief Parses command line arguments, separating each frequency duration pair, and validating for valid input
     /// @param argc main function argc
@@ -63,6 +63,25 @@ class OscFreqDurPair{
         return osc.process(noteFreq); // Make Osc object generate the next sample with current note frequency
     }
 
+    double * processBlock(){
+        std::vector<double> freqs(bufferSize), amps(bufferSize);
+        std::fill(amps.begin(), amps.end(), volume);
+        for (int sample = 0; sample < bufferSize; sample++){
+            // If the current frequency has played for given length, iterate to next note
+            if (noteSamplesToWrite <= noteSamplesWritten){
+                noteIndex++; // Iterate index
+                std::pair<int,double> pair = freqDurPairs[noteIndex]; // Get next note freq and duration
+                noteFreq = pair.first; // Get frequency
+                noteSamplesToWrite = static_cast<int>(pair.second * sampleRate); // Calculate how many samples to play new frequency
+                noteSamplesWritten = 0; // Reset counter for samples note has played
+                std::cout << "Freq: " << noteFreq << "Hz" << std::endl; // Print that a new note is playing
+            }
+            noteSamplesWritten++; // Iterate number of samples note has played
+            freqs[sample] = noteFreq;
+        }
+        return osc.processBuffer(freqs, amps);
+    }
+
     /// @brief Calculates how long the performance with user input frequencies and durations
     /// @return length of performance in seconds
     double getPerformanceTime(){
@@ -107,12 +126,9 @@ int myCallback(const void *inputBuffer, void *outputBuffer,
         (void)inputBuffer; // Prevent unused variable warning.
         OscFreqDurPair *osc = (OscFreqDurPair*)userData;
         
-        float sample = 0;
-        for (unsigned int i = 0; i < framesPerBuffer; i++) {
-            sample = osc->process();
-            *out++ = sample; // Left channel
-            *out++ = sample; // Right channel
-        }
+        outputBuffer = osc -> processBlock();
+
+        std::cout << framesPerBuffer << std::endl;
 
         return paContinue;
 }
@@ -121,6 +137,9 @@ int main (int argc, char *argv[]){
     // Saves start time of program to print runtime at end of program
     auto startTime = std::chrono::high_resolution_clock::now();
 
+    // Set number of channels to 2
+    int numChannels = 2;
+
     // Checks number of arguments passed
     if (argc < 3 || argc % 2 != 1 /* if no freq dur pairs, or incomplete pairs*/){
         std::cout << "Invalid number of arguments! \nUsage: ./osc5 freq1 dur1 [freq2 dur2 ...]\n";
@@ -128,7 +147,7 @@ int main (int argc, char *argv[]){
     }
     
     // Init osc object
-    OscFreqDurPair osc(volume);
+    OscFreqDurPair osc(numChannels);
 
     osc.parseArguments(argc, argv);
 
@@ -143,7 +162,7 @@ int main (int argc, char *argv[]){
     AudioOut* audioOut = nullptr;
     // portaudio init
     try {
-        audioOut = new AudioOut(2);
+        audioOut = new AudioOut(numChannels);
         audioOut -> setCallback(myCallback, &osc);
         audioOut -> selectDefaultDevice();
         audioOut -> openAndStartStream();
