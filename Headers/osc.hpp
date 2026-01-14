@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include "libdef.hpp"
+#include <iostream>
 
 
 /// @brief Sine wave oscillator which stores phase, allowing for frequency changes without clicks

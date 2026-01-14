@@ -12,7 +12,7 @@ public:
     // && : rvalue reference
     TableOsc(double amp = 1, int freq = 440, std::vector<double>& table, size_t outputBufferSize)
     : lookupTable(table), outputBuffer(outputBufferSize), outputBufferSize(outputBufferSize){
-        Osc(amp, freq);
+        Osc(2);
         lookupTableSize = table.size();
     }
 

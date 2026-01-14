@@ -67,14 +67,18 @@ class OscFreqDurPair{
         std::vector<double> freqs(bufferSize), amps(bufferSize);
         std::fill(amps.begin(), amps.end(), volume);
         for (int sample = 0; sample < bufferSize; sample++){
+            if(noteIndex >= freqDurPairs.size()){
+                noteFreq = 0;
+                continue;
+            }
             // If the current frequency has played for given length, iterate to next note
-            if (noteSamplesToWrite <= noteSamplesWritten){
+            if (noteSamplesToWrite < noteSamplesWritten){
                 noteIndex++; // Iterate index
                 std::pair<int,double> pair = freqDurPairs[noteIndex]; // Get next note freq and duration
                 noteFreq = pair.first; // Get frequency
                 noteSamplesToWrite = static_cast<int>(pair.second * sampleRate); // Calculate how many samples to play new frequency
                 noteSamplesWritten = 0; // Reset counter for samples note has played
-                std::cout << "Freq: " << noteFreq << "Hz" << std::endl; // Print that a new note is playing
+                std::cout << "Freq: " << noteFreq << "Hz for " << noteSamplesToWrite << " samples!" << std::endl; // Print that a new note is playing
             }
             noteSamplesWritten++; // Iterate number of samples note has played
             freqs[sample] = noteFreq;
@@ -100,6 +104,8 @@ class OscFreqDurPair{
     private:
     Osc osc;
     std::vector<std::pair<int,double>> freqDurPairs;
+    std::vector<double> freqs;
+    std::vector<double> amps;
     
     int noteIndex = -1;
     int noteSamplesWritten = 0;
@@ -128,7 +134,7 @@ int myCallback(const void *inputBuffer, void *outputBuffer,
         
         outputBuffer = osc -> processBlock();
 
-        std::cout << framesPerBuffer << std::endl;
+        //std::cout << framesPerBuffer << std::endl;
 
         return paContinue;
 }
@@ -138,7 +144,7 @@ int main (int argc, char *argv[]){
     auto startTime = std::chrono::high_resolution_clock::now();
 
     // Set number of channels to 2
-    int numChannels = 2;
+    int numChannels = 1;
 
     // Checks number of arguments passed
     if (argc < 3 || argc % 2 != 1 /* if no freq dur pairs, or incomplete pairs*/){
@@ -167,7 +173,7 @@ int main (int argc, char *argv[]){
         audioOut -> selectDefaultDevice();
         audioOut -> openAndStartStream();
         // Keep stream playing for duration of performance time
-        std::this_thread::sleep_for(std::chrono::duration<double>(osc.getPerformanceTime()));
+        std::this_thread::sleep_for(std::chrono::duration<double>(1));//osc.getPerformanceTime()));
     } catch(const std::runtime_error e){
         std::cerr << e.what() <<std::endl;
         return EXIT_FAILURE;

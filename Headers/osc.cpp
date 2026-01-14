@@ -33,6 +33,8 @@ double *Osc::processBuffer(std::vector<double> freqs, std::vector<double> amps)
             m_outputBuffer[sample++] = sampleValue;
         }
 
+        //std::cout << sampleValue << std::endl;
+
         // wrap phase under 2π
         if (phase >= twopi)
         phase -= twopi;
